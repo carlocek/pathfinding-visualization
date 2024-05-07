@@ -1,4 +1,4 @@
-#include "../libs/Grid.hpp"
+#include "Grid.hpp"
 
 #include <SFML/Graphics.hpp>
 

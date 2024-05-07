@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "../libs/Cell.hpp"
+#include "Cell.hpp"
 
 class Grid 
 {

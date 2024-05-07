@@ -1,4 +1,4 @@
-#include "../libs/Cell.hpp"
+#include "Cell.hpp"
 
 #include <SFML/Graphics.hpp>
 

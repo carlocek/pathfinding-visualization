@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include "../libs/Cell.hpp"
-#include "../libs/Grid.hpp"
+#include "Cell.hpp"
+#include "Grid.hpp"
 
 int main()
 {
