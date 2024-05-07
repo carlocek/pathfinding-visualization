@@ -68,3 +68,18 @@ Cell* Grid::getCell(int x, int y)
 		return nullptr;
 	}
 }
+
+Cell* Grid::getStartCell()
+{
+	return &startCell;
+}
+
+Cell* Grid::getEndCell()
+{
+	return &endCell;
+}
+
+void Grid::setPathfindingStrategy(PathfindingStrategy strategy)
+{
+	this->strategy = strategy;
+}

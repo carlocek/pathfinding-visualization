@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "Cell.hpp"
 #include "Grid.hpp"
+//#include "PathfindingStrategy.hpp"
+#include "DjikstraStrategy.hpp"
 
 int main()
 {
@@ -52,6 +54,10 @@ int main()
 		}
 
         window.clear(sf::Color::Cyan);
+        PathfindingStrategy strategy = DjikstraStrategy(grid);
+        grid.setPathfindingStrategy(strategy);
+//TODO:        grid.strategy.search();
+
         grid.draw(window);
         window.display();
     }
