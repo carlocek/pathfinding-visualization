@@ -31,6 +31,8 @@ int main()
 					grid.setCellStateOnMouseClick(window, currentState);
 				}
 			}
+
+
 			else if (event.type == sf::Event::KeyPressed)
 			{
 				// Change drawing mode based on keys (start, end, obstacle)
