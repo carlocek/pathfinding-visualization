@@ -3,8 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 Cell::Cell(int x, int y, CellState state = CellState::Empty) : x(x), y(y), state(state)
-{
-}
+{}
 
 void Cell::draw(sf::RenderWindow& window, int cellSize, float borderWidth)
 {

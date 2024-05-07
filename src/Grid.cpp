@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 Grid::Grid(const int width, const int height, const int cellSize, const float borderWidth)
-: width(width), height(height), cellSize(cellSize), borderWidth(borderWidth), startCell(nullptr), endCell(nullptr)
+: width(width), height(height), cellSize(cellSize), borderWidth(borderWidth), startCell(nullptr), endCell(nullptr), strategy(nullptr)
 {
     this->cells.resize(width / cellSize, std::vector<Cell>(height / cellSize, Cell(0, 0, CellState::Empty)));
     for(int i = 0; i < width/cellSize; i++)
@@ -71,15 +71,40 @@ Cell* Grid::getCell(int x, int y)
 
 Cell* Grid::getStartCell()
 {
-	return &startCell;
+	return startCell;
 }
 
 Cell* Grid::getEndCell()
 {
-	return &endCell;
+	return endCell;
 }
 
-void Grid::setPathfindingStrategy(PathfindingStrategy strategy)
+void Grid::setPathfindingStrategy(PathfindingStrategy* strategy)
 {
 	this->strategy = strategy;
+}
+
+PathfindingStrategy* Grid::getPathfindingStrategy()
+{
+	return strategy;
+}
+
+int Grid::getHeight() const
+{
+	return height;
+}
+
+void Grid::setHeight(int height)
+{
+	this->height = height;
+}
+
+int Grid::getWidth() const
+{
+	return width;
+}
+
+void Grid::setWidth(int width)
+{
+	this->width = width;
 }

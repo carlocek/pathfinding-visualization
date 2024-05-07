@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "Cell.hpp"
 #include "Grid.hpp"
-//#include "PathfindingStrategy.hpp"
+#include "PathfindingStrategy.hpp"
 #include "DjikstraStrategy.hpp"
 
 int main()
@@ -54,9 +54,9 @@ int main()
 		}
 
         window.clear(sf::Color::Cyan);
-        PathfindingStrategy strategy = DjikstraStrategy(grid);
-        grid.setPathfindingStrategy(strategy);
-//TODO:        grid.strategy.search();
+        DjikstraStrategy strategy = DjikstraStrategy(&grid);
+//        grid.setPathfindingStrategy(&strategy);
+//        std::vector<Cell*> shortestPath = grid.getPathfindingStrategy()->search();
 
         grid.draw(window);
         window.display();
