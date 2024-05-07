@@ -11,6 +11,8 @@ private:
     int cellSize;
     float borderWidth;
     std::vector<std::vector<Cell>> cells;
+    Cell* startCell;
+    Cell* endCell;
 
 public:
     Grid(const int width, const int height, const int cellSize, const float borderWidth);

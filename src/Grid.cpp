@@ -2,7 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
-Grid::Grid(const int width, const int height, const int cellSize, const float borderWidth) : width(width), height(height), cellSize(cellSize), borderWidth(borderWidth)
+Grid::Grid(const int width, const int height, const int cellSize, const float borderWidth)
+: width(width), height(height), cellSize(cellSize), borderWidth(borderWidth), startCell(nullptr), endCell(nullptr)
 {
     this->cells.resize(width / cellSize, std::vector<Cell>(height / cellSize, Cell(0, 0, CellState::Empty)));
     for(int i = 0; i < width/cellSize; i++)
@@ -33,7 +34,26 @@ void Grid::setCellStateOnMouseClick(sf::RenderWindow& window, CellState currentS
     Cell* cell = getCell(x, y);
     if (cell != nullptr)
     {
-        cell->setState(currentState);
+    	if(currentState == CellState::Start)
+    	{
+    		if(startCell != nullptr)
+				startCell->setState(CellState::Empty);
+    		startCell = cell;
+    		cell->setState(currentState);
+    	}
+    	else if(currentState == CellState::End)
+		{
+    		if(endCell != nullptr)
+				endCell->setState(CellState::Empty);
+    		endCell = cell;
+			cell->setState(currentState);
+		}
+    	else if(currentState == CellState::Obstacle)
+		{
+    		if (cell == startCell || cell == endCell)
+				return;
+    		cell->setState(cell->getState() == CellState::Obstacle ? CellState::Empty : CellState::Obstacle);
+		}
     }
 }
 
