@@ -11,7 +11,7 @@ int main()
 	const int CELL_SIZE = 50;
 	const float CELL_BORDER_SIZE = 4.0;
 
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "My window");
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Pathfinding Visualization");
     window.setFramerateLimit(60);
 
     Grid grid = Grid(WIDTH, HEIGHT, CELL_SIZE, CELL_BORDER_SIZE);
@@ -63,11 +63,6 @@ int main()
 				}
 			}
 		}
-
-//        window.clear(sf::Color::Black);
-//        DjikstraStrategy strategy = DjikstraStrategy(&grid);
-//        grid.setPathfindingStrategy(&strategy);
-//        std::vector<Cell*> shortestPath = grid.getPathfindingStrategy()->search(window);
 
         grid.draw(window);
         window.display();

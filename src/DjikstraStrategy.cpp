@@ -5,15 +5,9 @@
 #include <queue>
 #include <cstdlib>
 #include <iostream>
+#include <cmath>
 
-struct CellDistance
-{
-    Cell* cell;
-    int distance;
-    CellDistance(Cell* cell, int distance) : cell(cell), distance(distance) {}
-};
-
-// Comparison function for priority queue
+// comparison function for priority queue
 struct CompareCellDistance
 {
     bool operator()(const std::pair<Cell*, int>& lhs, const std::pair<Cell*, int>& rhs) const
@@ -32,10 +26,10 @@ DjikstraStrategy::~DjikstraStrategy()
 std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 {
 	const int INF = std::numeric_limits<int>::max();
-	std::vector<std::vector<int>> distance(grid->getWidth(), std::vector<int>(grid->getHeight(), INF));
+	std::vector<std::vector<float>> distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF));
 	std::vector<std::vector<Cell*>> predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr));
 //	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, std::less<>> pq;
-	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, CompareCellDistance> pq;
+	std::priority_queue<std::pair<Cell*, float>, std::vector<std::pair<Cell*, float>>, CompareCellDistance> pq;
 
 	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
 	pq.push({grid->getStartCell(), 0});
@@ -43,8 +37,12 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 	while(!pq.empty())
 	{
 		Cell* currentCell = pq.top().first;
-		int currentDistance = pq.top().second;
+		float currentDistance = pq.top().second;
 		pq.pop();
+
+		if(currentCell->getState() == CellState::Obstacle)
+			continue;
+
 		if(currentCell != grid->getStartCell() && currentCell != grid->getEndCell())
 			currentCell->setState(CellState::Visited);
 
@@ -52,52 +50,27 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 			break;
 
 		// update distances of adjacent cells (up, down, left, right)
-		int newDistance = currentDistance + 1;
-		if(currentCell->getX() < grid->getWidth()/grid->getCellSize()-1)
+		std::vector<Cell*> adjacentCells = getAdjacentCells(currentCell);
+		for(Cell* adjacentCell : adjacentCells)
 		{
-			if (newDistance < distance[currentCell->getX()+1][currentCell->getY()])
+			float newDistance;
+			if(adjacentCell->getX() != currentCell->getX() && adjacentCell->getY() != currentCell->getY())
+				newDistance = currentDistance + sqrt(2);
+			else
+				newDistance = currentDistance + 1;
+			if (newDistance < distance[adjacentCell->getX()][adjacentCell->getY()])
 			{
-				distance[currentCell->getX()+1][currentCell->getY()] = newDistance;
-				predecessor[currentCell->getX()+1][currentCell->getY()] = currentCell;
-				if(grid->getCell(currentCell->getX()+1, currentCell->getY())->getState() != CellState::Visited)
-					pq.push({grid->getCell(currentCell->getX()+1, currentCell->getY()), newDistance});
-			}
-		}
-		if(currentCell->getY() < grid->getHeight()/grid->getCellSize()-1)
-		{
-			if (newDistance < distance[currentCell->getX()][currentCell->getY()+1])
-			{
-				distance[currentCell->getX()][currentCell->getY()+1] = newDistance;
-				predecessor[currentCell->getX()][currentCell->getY()+1] = currentCell;
-				if(grid->getCell(currentCell->getX(), currentCell->getY()+1)->getState() != CellState::Visited)
-					pq.push({grid->getCell(currentCell->getX(), currentCell->getY()+1), newDistance});
-			}
-		}
-		if(currentCell->getX() > 0)
-		{
-			if (newDistance < distance[currentCell->getX()-1][currentCell->getY()])
-			{
-				distance[currentCell->getX()-1][currentCell->getY()] = newDistance;
-				predecessor[currentCell->getX()-1][currentCell->getY()] = currentCell;
-				if(grid->getCell(currentCell->getX()-1, currentCell->getY())->getState() != CellState::Visited)
-					pq.push({grid->getCell(currentCell->getX()-1, currentCell->getY()), newDistance});
-			}
-		}
-		if(currentCell->getY() > 0)
-		{
-			if (newDistance < distance[currentCell->getX()][currentCell->getY()-1])
-			{
-				distance[currentCell->getX()][currentCell->getY()-1] = newDistance;
-				predecessor[currentCell->getX()][currentCell->getY()-1] = currentCell;
-				if(grid->getCell(currentCell->getX(), currentCell->getY()-1)->getState() != CellState::Visited)
-					pq.push({grid->getCell(currentCell->getX(), currentCell->getY()-1), newDistance});
+				distance[adjacentCell->getX()][adjacentCell->getY()] = newDistance;
+				predecessor[adjacentCell->getX()][adjacentCell->getY()] = currentCell;
+				if(grid->getCell(adjacentCell->getX(), adjacentCell->getY())->getState() != CellState::Visited)
+					pq.push({grid->getCell(adjacentCell->getX(), adjacentCell->getY()), newDistance});
 			}
 		}
 
 		grid->draw(window);
-		window.display();
-		sf::Time waitTime = sf::seconds(0.5f);
-		sf::sleep(waitTime);
+		window.display(); // to be able to see algorithm steps
+//		sf::Time waitTime = sf::seconds(0.2f);
+//		sf::sleep(waitTime);
 	}
 
 	// reconstruct shortest path if it exists
@@ -114,9 +87,54 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 		}
 		std::reverse(shortestPath.begin(), shortestPath.end());
 		grid->draw(window);
-		window.display();
 	}
 
 	return shortestPath;
+}
+
+std::vector<Cell*> DjikstraStrategy::getAdjacentCells(Cell* currentCell)
+{
+	std::vector<Cell*> adjacentCells;
+	std::vector<Cell*> diagonalAdjacentCells;
+	// right, top, left, down
+	if(currentCell->getX() < grid->getWidth()/grid->getCellSize()-1)
+	{
+		adjacentCells.push_back(grid->getCell(currentCell->getX()+1, currentCell->getY()));
+	}
+	if(currentCell->getY() < grid->getHeight()/grid->getCellSize()-1)
+	{
+		adjacentCells.push_back(grid->getCell(currentCell->getX(), currentCell->getY()+1));
+	}
+	if(currentCell->getX() > 0)
+	{
+		adjacentCells.push_back(grid->getCell(currentCell->getX()-1, currentCell->getY()));
+	}
+	if(currentCell->getY() > 0)
+	{
+		adjacentCells.push_back(grid->getCell(currentCell->getX(), currentCell->getY()-1));
+	}
+	// diagonal cells
+	if(currentCell->getX() < grid->getWidth()/grid->getCellSize()-1 && currentCell->getY() < grid->getHeight()/grid->getCellSize()-1
+			&& grid->getCell(currentCell->getX()+1, currentCell->getY())->getState() != CellState::Obstacle && grid->getCell(currentCell->getX(), currentCell->getY()+1)->getState() != CellState::Obstacle)
+	{
+		diagonalAdjacentCells.push_back(grid->getCell(currentCell->getX()+1, currentCell->getY()+1));
+	}
+	if(currentCell->getX() < grid->getWidth()/grid->getCellSize()-1 && currentCell->getY() > 0
+			&& grid->getCell(currentCell->getX()+1, currentCell->getY())->getState() != CellState::Obstacle && grid->getCell(currentCell->getX(), currentCell->getY()-1)->getState() != CellState::Obstacle)
+	{
+		diagonalAdjacentCells.push_back(grid->getCell(currentCell->getX()+1, currentCell->getY()-1));
+	}
+	if(currentCell->getX() > 0 && currentCell->getY() < grid->getHeight()/grid->getCellSize()-1
+			&& grid->getCell(currentCell->getX()-1, currentCell->getY())->getState() != CellState::Obstacle && grid->getCell(currentCell->getX(), currentCell->getY()+1)->getState() != CellState::Obstacle)
+	{
+		diagonalAdjacentCells.push_back(grid->getCell(currentCell->getX()-1, currentCell->getY()+1));
+	}
+	if(currentCell->getX() > 0 && currentCell->getY() > 0
+			&& grid->getCell(currentCell->getX()-1, currentCell->getY())->getState() != CellState::Obstacle && grid->getCell(currentCell->getX(), currentCell->getY()-1)->getState() != CellState::Obstacle)
+	{
+		diagonalAdjacentCells.push_back(grid->getCell(currentCell->getX()-1, currentCell->getY()-1));
+	}
+	adjacentCells.insert(adjacentCells.end(), diagonalAdjacentCells.begin(), diagonalAdjacentCells.end());
+	return adjacentCells;
 }
 

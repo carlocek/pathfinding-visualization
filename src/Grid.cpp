@@ -28,6 +28,8 @@ void Grid::draw(sf::RenderWindow& window)
 
 void Grid::reset()
 {
+	this->startCell = nullptr;
+	this->endCell = nullptr;
 	for(int x = 0; x < width/cellSize; x++)
 	{
 		for(int y = 0; y < height/cellSize; y++)
