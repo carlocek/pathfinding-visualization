@@ -7,7 +7,8 @@ enum class CellState {
     Obstacle,
     Start,
     End,
-    Visited
+    Visited,
+	Path
 };
 
 class Cell 
