@@ -33,8 +33,6 @@ int main()
 					grid.setCellStateOnMouseClick(window, currentState);
 				}
 			}
-
-
 			else if (event.type == sf::Event::KeyPressed)
 			{
 				// Change drawing mode based on keys (start, end, obstacle)
@@ -50,13 +48,26 @@ int main()
 				{
 					currentState = CellState::Obstacle;
 				}
+				else if (event.key.code == sf::Keyboard::Backspace)
+				{
+					window.clear(sf::Color::Black);
+					grid.reset();
+				}
+
+				else if (event.key.code == sf::Keyboard::Enter)
+				{
+					window.clear(sf::Color::Black);
+					DjikstraStrategy strategy = DjikstraStrategy(&grid);
+					grid.setPathfindingStrategy(&strategy);
+					std::vector<Cell*> shortestPath = grid.getPathfindingStrategy()->search(window);
+				}
 			}
 		}
 
-        window.clear(sf::Color::Cyan);
-        DjikstraStrategy strategy = DjikstraStrategy(&grid);
+//        window.clear(sf::Color::Black);
+//        DjikstraStrategy strategy = DjikstraStrategy(&grid);
 //        grid.setPathfindingStrategy(&strategy);
-//        std::vector<Cell*> shortestPath = grid.getPathfindingStrategy()->search();
+//        std::vector<Cell*> shortestPath = grid.getPathfindingStrategy()->search(window);
 
         grid.draw(window);
         window.display();

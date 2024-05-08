@@ -7,5 +7,5 @@ class DjikstraStrategy : public PathfindingStrategy
 public:
 	DjikstraStrategy(Grid* grid);
 	~DjikstraStrategy();
-	std::vector<Cell*> search();
+	std::vector<Cell*> search(sf::RenderWindow& window);
 };

@@ -6,11 +6,11 @@ Grid::Grid(const int width, const int height, const int cellSize, const float bo
 : width(width), height(height), cellSize(cellSize), borderWidth(borderWidth), startCell(nullptr), endCell(nullptr), strategy(nullptr)
 {
     this->cells.resize(width / cellSize, std::vector<Cell>(height / cellSize, Cell(0, 0, CellState::Empty)));
-    for(int i = 0; i < width/cellSize; i++)
+    for(int x = 0; x < width/cellSize; x++)
     {
-        for(int j = 0; j < height/cellSize; j++)
+        for(int y = 0; y < height/cellSize; y++)
         {
-            this->cells[i][j] = Cell(i, j, CellState::Empty);
+            this->cells[x][y] = Cell(x, y, CellState::Empty);
         }
     }
 }
@@ -24,6 +24,17 @@ void Grid::draw(sf::RenderWindow& window)
         	this->cells[x][y].draw(window, cellSize, borderWidth);
         }
     }
+}
+
+void Grid::reset()
+{
+	for(int x = 0; x < width/cellSize; x++)
+	{
+		for(int y = 0; y < height/cellSize; y++)
+		{
+			this->cells[x][y].setState(CellState::Empty);
+		}
+	}
 }
 
 void Grid::setCellStateOnMouseClick(sf::RenderWindow& window, CellState currentState)
@@ -59,7 +70,7 @@ void Grid::setCellStateOnMouseClick(sf::RenderWindow& window, CellState currentS
 
 Cell* Grid::getCell(int x, int y)
 {
-	if (x >= 0 && x < width / cellSize && y >= 0 && y < height / cellSize)
+	if (x >= 0 && x < width/cellSize && y >= 0 && y < height/cellSize)
 	{
 		return &cells[x][y];
 	}
@@ -107,4 +118,14 @@ int Grid::getWidth() const
 void Grid::setWidth(int width)
 {
 	this->width = width;
+}
+
+int Grid::getCellSize() const
+{
+	return cellSize;
+}
+
+void Grid::setCellSize(int cellSize)
+{
+	this->cellSize = cellSize;
 }

@@ -21,6 +21,7 @@ private:
 public:
     Grid(const int width, const int height, const int cellSize, const float borderWidth);
     void draw(sf::RenderWindow& window);
+    void reset();
     void setCellStateOnMouseClick(sf::RenderWindow& window, CellState currentState);
     Cell* getCell(int x, int y);
     Cell* getStartCell();
@@ -31,4 +32,6 @@ public:
 	void setHeight(int height);
 	int getWidth() const;
 	void setWidth(int width);
+	int getCellSize() const;
+	void setCellSize(int cellSize);
 };
