@@ -6,6 +6,22 @@
 #include <cstdlib>
 #include <iostream>
 
+struct CellDistance
+{
+    Cell* cell;
+    int distance;
+    CellDistance(Cell* cell, int distance) : cell(cell), distance(distance) {}
+};
+
+// Comparison function for priority queue
+struct CompareCellDistance
+{
+    bool operator()(const std::pair<Cell*, int>& lhs, const std::pair<Cell*, int>& rhs) const
+    {
+        return lhs.second > rhs.second;
+    }
+};
+
 DjikstraStrategy::DjikstraStrategy(Grid* grid)
 : PathfindingStrategy(grid)
 {}
@@ -18,7 +34,8 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 	const int INF = std::numeric_limits<int>::max();
 	std::vector<std::vector<int>> distance(grid->getWidth(), std::vector<int>(grid->getHeight(), INF));
 	std::vector<std::vector<Cell*>> predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr));
-	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, std::less<>> pq;
+//	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, std::less<>> pq;
+	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, CompareCellDistance> pq;
 
 	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
 	pq.push({grid->getStartCell(), 0});
@@ -28,7 +45,7 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 		Cell* currentCell = pq.top().first;
 		int currentDistance = pq.top().second;
 		pq.pop();
-		if(currentCell != grid->getStartCell())
+		if(currentCell != grid->getStartCell() && currentCell != grid->getEndCell())
 			currentCell->setState(CellState::Visited);
 
 		if(currentCell == grid->getEndCell())
