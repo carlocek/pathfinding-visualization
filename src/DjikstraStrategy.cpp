@@ -34,6 +34,8 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
 	pq.push({grid->getStartCell(), 0});
 
+	int nframes = 0;
+	int drawFrame = 10; //to adjust visualization speed (1 to see each iteration with slow speed)
 	while(!pq.empty())
 	{
 		Cell* currentCell = pq.top().first;
@@ -68,9 +70,12 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 		}
 
 		grid->draw(window);
-		window.display(); // to be able to see algorithm steps
+		// remove this to see instantaneous result
+		if(nframes % drawFrame == 0)
+			window.display();
 //		sf::Time waitTime = sf::seconds(0.2f);
 //		sf::sleep(waitTime);
+		nframes++;
 	}
 
 	// reconstruct shortest path if it exists
@@ -113,7 +118,7 @@ std::vector<Cell*> DjikstraStrategy::getAdjacentCells(Cell* currentCell)
 	{
 		adjacentCells.push_back(grid->getCell(currentCell->getX(), currentCell->getY()-1));
 	}
-	// diagonal cells
+	// diagonal cells (check also invalid diagonal moves passing between two obstacle cells)
 	if(currentCell->getX() < grid->getWidth()/grid->getCellSize()-1 && currentCell->getY() < grid->getHeight()/grid->getCellSize()-1
 			&& grid->getCell(currentCell->getX()+1, currentCell->getY())->getState() != CellState::Obstacle && grid->getCell(currentCell->getX(), currentCell->getY()+1)->getState() != CellState::Obstacle)
 	{

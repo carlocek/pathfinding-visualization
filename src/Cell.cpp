@@ -9,7 +9,7 @@ void Cell::draw(sf::RenderWindow& window, int cellSize, float borderWidth)
 {
         sf::RectangleShape rect(sf::Vector2f(cellSize, cellSize));
         rect.setPosition(x*cellSize, y*cellSize);
-        switch (state)
+        switch(state)
         {
             case CellState::Empty:
                 rect.setFillColor(sf::Color::White);

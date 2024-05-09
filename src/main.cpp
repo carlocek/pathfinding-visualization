@@ -8,8 +8,8 @@ int main()
 {
 	const int WIDTH = 800;
 	const int HEIGHT = 800;
-	const int CELL_SIZE = 50;
-	const float CELL_BORDER_SIZE = 4.0;
+	const int CELL_SIZE = 20;
+	const float CELL_BORDER_SIZE = 2.0;
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Pathfinding Visualization");
     window.setFramerateLimit(60);
