@@ -47,6 +47,10 @@ void Grid::setCellStateOnMouseClick(sf::RenderWindow& window, CellState currentS
     Cell* cell = getCell(x, y);
     if (cell != nullptr)
     {
+    	if(currentState == CellState::Empty)
+		{
+			cell->setState(currentState);
+		}
     	if(currentState == CellState::Start)
     	{
     		if(startCell != nullptr)
@@ -65,7 +69,8 @@ void Grid::setCellStateOnMouseClick(sf::RenderWindow& window, CellState currentS
 		{
     		if (cell == startCell || cell == endCell)
 				return;
-    		cell->setState(cell->getState() == CellState::Obstacle ? CellState::Empty : CellState::Obstacle);
+    		cell->setState(CellState::Obstacle);
+//    		cell->setState(cell->getState() == CellState::Obstacle ? CellState::Empty : CellState::Obstacle);
 		}
     }
 }

@@ -23,7 +23,7 @@ DjikstraStrategy::DjikstraStrategy(Grid* grid)
 DjikstraStrategy::~DjikstraStrategy()
 {}
 
-std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
+float DjikstraStrategy::search(sf::RenderWindow& window)
 {
 	const int INF = std::numeric_limits<int>::max();
 	std::vector<std::vector<float>> distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF));
@@ -79,7 +79,6 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 	}
 
 	// reconstruct shortest path if it exists
-	std::vector<Cell*> shortestPath;
 	if (predecessor[grid->getEndCell()->getX()][grid->getEndCell()->getY()] != nullptr)
 	{
 		Cell* currentCell = grid->getEndCell();
@@ -87,14 +86,11 @@ std::vector<Cell*> DjikstraStrategy::search(sf::RenderWindow& window)
 		{
 			if(currentCell != grid->getStartCell() && currentCell != grid->getEndCell())
 				currentCell->setState(CellState::Path);
-			shortestPath.push_back(currentCell);
 			currentCell = predecessor[currentCell->getX()][currentCell->getY()];
 		}
-		std::reverse(shortestPath.begin(), shortestPath.end());
 		grid->draw(window);
 	}
-
-	return shortestPath;
+	return distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
 }
 
 std::vector<Cell*> DjikstraStrategy::getAdjacentCells(Cell* currentCell)
