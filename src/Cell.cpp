@@ -15,7 +15,7 @@ void Cell::draw(sf::RenderWindow& window, int cellSize, float borderWidth)
                 rect.setFillColor(sf::Color::White);
                 break;
             case CellState::Obstacle:
-                rect.setFillColor(sf::Color{64, 64, 64});//dark grey
+                rect.setFillColor(sf::Color{64, 64, 64});// dark grey
                 break;
             case CellState::Start:
                 rect.setFillColor(sf::Color::Green);
@@ -31,7 +31,7 @@ void Cell::draw(sf::RenderWindow& window, int cellSize, float borderWidth)
 				break;
         }
         rect.setOutlineThickness(borderWidth);
-        rect.setOutlineColor(sf::Color::Black);
+        rect.setOutlineColor(sf::Color{128, 128, 128}); // light grey
         window.draw(rect);
 }
 

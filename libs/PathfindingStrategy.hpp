@@ -11,6 +11,6 @@ protected:
 public:
 	PathfindingStrategy(Grid* grid) : grid(grid) {};
 	virtual ~PathfindingStrategy() {};
-	virtual std::vector<Cell*> search(sf::RenderWindow& window);
+	virtual float search(sf::RenderWindow& window);
 };
 
