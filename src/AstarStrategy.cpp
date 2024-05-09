@@ -1,4 +1,4 @@
-#include "DjikstraStrategy.hpp"
+#include "AstarStrategy.hpp"
 #include "PathfindingStrategy.hpp"
 #include "Grid.hpp"
 #include <limits>
@@ -16,14 +16,14 @@ struct CompareCellDistance
     }
 };
 
-DjikstraStrategy::DjikstraStrategy(Grid* grid)
+AstarStrategy::AstarStrategy(Grid* grid)
 : PathfindingStrategy(grid)
 {}
 
-DjikstraStrategy::~DjikstraStrategy()
+AstarStrategy::~AstarStrategy()
 {}
 
-float DjikstraStrategy::search(sf::RenderWindow& window)
+float AstarStrategy::search(sf::RenderWindow& window)
 {
 	const int INF = std::numeric_limits<int>::max();
 	std::vector<std::vector<float>> distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF));
@@ -31,15 +31,15 @@ float DjikstraStrategy::search(sf::RenderWindow& window)
 //	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, std::less<>> pq;
 	std::priority_queue<std::pair<Cell*, float>, std::vector<std::pair<Cell*, float>>, CompareCellDistance> pq;
 
-	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
-	pq.push({grid->getStartCell(), 0});
+	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = potential(grid->getStartCell(), grid->getEndCell());
+	pq.push({grid->getStartCell(), potential(grid->getStartCell(), grid->getEndCell())});
 
 	int nframes = 0;
 	int drawFrame = 10; //to adjust visualization speed (1 to see each iteration with slow speed)
 	while(!pq.empty())
 	{
 		Cell* currentCell = pq.top().first;
-		float currentDistance = pq.top().second;
+		float currentDistancePotential = pq.top().second;
 		pq.pop();
 
 		if(currentCell->getState() == CellState::Obstacle)
@@ -55,17 +55,21 @@ float DjikstraStrategy::search(sf::RenderWindow& window)
 		std::vector<Cell*> adjacentCells = getAdjacentCells(currentCell);
 		for(Cell* adjacentCell : adjacentCells)
 		{
-			float newDistance;
+			float newDistancePotential;
 			if(adjacentCell->getX() != currentCell->getX() && adjacentCell->getY() != currentCell->getY())
-				newDistance = currentDistance + sqrt(2);
-			else
-				newDistance = currentDistance + 1;
-			if (newDistance < distance[adjacentCell->getX()][adjacentCell->getY()])
 			{
-				distance[adjacentCell->getX()][adjacentCell->getY()] = newDistance;
+				newDistancePotential = currentDistancePotential + sqrt(2) + potential(adjacentCell, grid->getEndCell());
+			}
+			else
+			{
+				newDistancePotential = currentDistancePotential + 1 + potential(adjacentCell, grid->getEndCell());
+			}
+			if (newDistancePotential < distance[adjacentCell->getX()][adjacentCell->getY()])
+			{
+				distance[adjacentCell->getX()][adjacentCell->getY()] = newDistancePotential;
 				predecessor[adjacentCell->getX()][adjacentCell->getY()] = currentCell;
 				if(grid->getCell(adjacentCell->getX(), adjacentCell->getY())->getState() != CellState::Visited)
-					pq.push({grid->getCell(adjacentCell->getX(), adjacentCell->getY()), newDistance});
+					pq.push({grid->getCell(adjacentCell->getX(), adjacentCell->getY()), newDistancePotential});
 			}
 		}
 
@@ -79,21 +83,28 @@ float DjikstraStrategy::search(sf::RenderWindow& window)
 	}
 
 	// reconstruct shortest path if it exists
+	float length = distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
 	if (predecessor[grid->getEndCell()->getX()][grid->getEndCell()->getY()] != nullptr)
 	{
 		Cell* currentCell = grid->getEndCell();
 		while (currentCell != nullptr)
 		{
+			length -= potential(currentCell, grid->getEndCell());
 			if(currentCell != grid->getStartCell() && currentCell != grid->getEndCell())
 				currentCell->setState(CellState::Path);
 			currentCell = predecessor[currentCell->getX()][currentCell->getY()];
 		}
 		grid->draw(window);
 	}
-	return distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
+	return length;
 }
 
-std::vector<Cell*> DjikstraStrategy::getAdjacentCells(Cell* currentCell)
+float AstarStrategy::potential(Cell *start, Cell *end)
+{
+	return sqrt(pow(start->getX()-end->getX(), 2) + pow(start->getY()-end->getY(), 2));
+}
+
+std::vector<Cell*> AstarStrategy::getAdjacentCells(Cell* currentCell)
 {
 	std::vector<Cell*> adjacentCells;
 	std::vector<Cell*> diagonalAdjacentCells;

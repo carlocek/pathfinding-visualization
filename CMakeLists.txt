@@ -11,8 +11,8 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 include_directories(libs)
-set(SOURCES src/main.cpp src/Cell.cpp src/Grid.cpp src/DjikstraStrategy.cpp 
-			libs/Cell.hpp libs/Grid.hpp libs/PathfindingStrategy.hpp libs/DjikstraStrategy.hpp)
+set(SOURCES src/main.cpp src/Cell.cpp src/Grid.cpp src/DjikstraStrategy.cpp src/AstarStrategy.cpp 
+			libs/Cell.hpp libs/Grid.hpp libs/PathfindingStrategy.hpp libs/DjikstraStrategy.hpp libs/AstarStrategy.hpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

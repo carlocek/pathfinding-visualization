@@ -28,6 +28,18 @@ void Grid::draw(sf::RenderWindow& window)
 
 void Grid::reset()
 {
+	for(int x = 0; x < width/cellSize; x++)
+	{
+		for(int y = 0; y < height/cellSize; y++)
+		{
+			if(this->cells[x][y].getState() == CellState::Visited || this->cells[x][y].getState() == CellState::Path)
+				this->cells[x][y].setState(CellState::Empty);
+		}
+	}
+}
+
+void Grid::clear()
+{
 	this->startCell = nullptr;
 	this->endCell = nullptr;
 	for(int x = 0; x < width/cellSize; x++)
