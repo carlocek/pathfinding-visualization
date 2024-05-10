@@ -5,6 +5,7 @@
 #include "DjikstraStrategy.hpp"
 #include "AstarStrategy.hpp"
 #include <iostream>
+#include <chrono>
 
 void drawInfo(sf::RenderWindow& window, sf::Font font)
 {
@@ -32,7 +33,14 @@ int main()
 	const int CELL_SIZE = 10;
 	const float CELL_BORDER_SIZE = CELL_SIZE/10;
 	bool mousePressed;
+	bool endSearch = false;
+	bool search = false;
 	float shortestPathLength;
+	int checksPerFrame = 10;
+
+//	std::chrono::milliseconds timePerFrame(1666);
+//	std::chrono::steady_clock::time_point prevTime = std::chrono::steady_clock::now();
+//	std::chrono::milliseconds elapsedTime(0);
 
     sf::RenderWindow window(sf::VideoMode(WIN_WIDTH, WIN_HEIGHT), "Pathfinding Visualization");
     window.setFramerateLimit(60);
@@ -76,20 +84,14 @@ int main()
 
     while (window.isOpen())
     {
-    	window.clear(sf::Color{128, 128, 128});
-    	drawInfo(window, font);
-    	window.draw(djikstraButtonRect);
-		window.draw(djikstraButtonText);
-		window.draw(astarButtonRect);
-		window.draw(astarButtonText);
-		window.draw(resetButtonRect);
-		window.draw(resetButtonText);
-		sf::Text instructionsText("Shortest path has length: "+std::to_string(shortestPathLength), font, 22);
-		instructionsText.setFillColor(sf::Color::White);
-		instructionsText.setPosition(810, 240);
-		window.draw(instructionsText);
+    	PathfindingStrategy* strategy;
 
-		PathfindingStrategy* strategy;
+//		std::chrono::milliseconds deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - prevTime);
+//		elapsedTime += deltaTime;
+
+//		while (elapsedTime >= timePerFrame)
+//		{
+//			elapsedTime -= timePerFrame;
 
 		sf::Event event;
 		while(window.pollEvent(event))
@@ -106,17 +108,20 @@ int main()
 					sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
 					if(djikstraButtonRect.getGlobalBounds().contains(mousePos))
 					{
-						strategy = new DjikstraStrategy(&grid);
+						strategy = new DjikstraStrategy(&grid, checksPerFrame);
 						djikstraButtonRect.setOutlineColor(sf::Color::Cyan);
 					}
 					else if(astarButtonRect.getGlobalBounds().contains(mousePos))
 					{
-						strategy = new AstarStrategy(&grid);
+						strategy = new AstarStrategy(&grid, checksPerFrame);
 						astarButtonRect.setOutlineColor(sf::Color::Cyan);
 					}
 					else if(resetButtonRect.getGlobalBounds().contains(mousePos))
 					{
 						grid.reset();
+						strategy = nullptr;
+						endSearch = false;
+						search = false;
 						resetButtonRect.setOutlineColor(sf::Color::Cyan);
 					}
 					else
@@ -162,16 +167,38 @@ int main()
 				{
 					grid.clear();
 				}
-
 				else if(event.key.code == sf::Keyboard::Enter && strategy != nullptr)
 				{
-					grid.setPathfindingStrategy(strategy);
-					shortestPathLength = grid.getPathfindingStrategy()->search(window);
+					search ^= true;
 				}
 			}
 		}
-
-        grid.draw(window);
-        window.display();
+		if(search && !endSearch)
+		{
+			grid.setPathfindingStrategy(strategy);
+			shortestPathLength = grid.getPathfindingStrategy()->search(window);
+			if(shortestPathLength != -1)
+			{
+				endSearch = true;
+			}
+		}
+//			if(elapsedTime < timePerFrame)
+//			{
+		window.clear(sf::Color{128, 128, 128});
+		drawInfo(window, font);
+		window.draw(djikstraButtonRect);
+		window.draw(djikstraButtonText);
+		window.draw(astarButtonRect);
+		window.draw(astarButtonText);
+		window.draw(resetButtonRect);
+		window.draw(resetButtonText);
+		sf::Text resultText("Shortest path has length: "+std::to_string(shortestPathLength), font, 22);
+		resultText.setFillColor(sf::Color::White);
+		resultText.setPosition(810, 240);
+		window.draw(resultText);
+		grid.draw(window);
+		window.display();
+//			}
+//		}
     }
 }

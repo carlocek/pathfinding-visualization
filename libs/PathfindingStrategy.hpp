@@ -2,6 +2,14 @@
 
 #include "Grid.hpp"
 
+struct CompareCellDistance
+{
+    bool operator()(const std::pair<Cell*, float>& lhs, const std::pair<Cell*, float>& rhs) const
+    {
+        return lhs.second > rhs.second;
+    }
+};
+
 class Grid;
 
 class PathfindingStrategy
