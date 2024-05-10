@@ -7,37 +7,22 @@
 #include <iostream>
 #include <cmath>
 
-// comparison function for priority queue
-struct CompareCellDistance
+DjikstraStrategy::DjikstraStrategy(Grid* grid, int checksPerFrame)
+: PathfindingStrategy(grid), distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF)), predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr)), checksPerFrame(checksPerFrame)
 {
-    bool operator()(const std::pair<Cell*, float>& lhs, const std::pair<Cell*, float>& rhs) const
-    {
-        return lhs.second > rhs.second;
-    }
-};
-
-DjikstraStrategy::DjikstraStrategy(Grid* grid)
-: PathfindingStrategy(grid)
-{}
+	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
+	pq.push({grid->getStartCell(), 0});
+}
 
 DjikstraStrategy::~DjikstraStrategy()
 {}
 
 float DjikstraStrategy::search(sf::RenderWindow& window)
 {
-	const int INF = std::numeric_limits<int>::max();
-	std::vector<std::vector<float>> distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF));
-	std::vector<std::vector<Cell*>> predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr));
-//	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, std::less<>> pq;
-	std::priority_queue<std::pair<Cell*, float>, std::vector<std::pair<Cell*, float>>, CompareCellDistance> pq;
-
-	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
-	pq.push({grid->getStartCell(), 0});
-
-	int nframes = 0;
-	int drawFrame = 10; //to adjust visualization speed (1 to see each iteration with slow speed)
-	while(!pq.empty())
+	int checks = 0;
+	while(!pq.empty() && checks < checksPerFrame)
 	{
+		checks++;
 		Cell* currentCell = pq.top().first;
 		float currentDistance = pq.top().second;
 		pq.pop();
@@ -68,14 +53,6 @@ float DjikstraStrategy::search(sf::RenderWindow& window)
 					pq.push({grid->getCell(adjacentCell->getX(), adjacentCell->getY()), newDistance});
 			}
 		}
-
-		grid->draw(window);
-		// remove this to see instantaneous result
-		if(nframes % drawFrame == 0)
-			window.display();
-//		sf::Time waitTime = sf::seconds(0.2f);
-//		sf::sleep(waitTime);
-		nframes++;
 	}
 
 	// reconstruct shortest path if it exists
@@ -89,8 +66,9 @@ float DjikstraStrategy::search(sf::RenderWindow& window)
 			currentCell = predecessor[currentCell->getX()][currentCell->getY()];
 		}
 		grid->draw(window);
+		return distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
 	}
-	return distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
+	return -1;
 }
 
 std::vector<Cell*> DjikstraStrategy::getAdjacentCells(Cell* currentCell)

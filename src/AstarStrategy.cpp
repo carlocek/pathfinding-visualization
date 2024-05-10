@@ -8,38 +8,33 @@
 #include <cmath>
 
 // comparison function for priority queue
-struct CompareCellDistance
-{
-    bool operator()(const std::pair<Cell*, float>& lhs, const std::pair<Cell*, float>& rhs) const
-    {
-        return lhs.second > rhs.second;
-    }
-};
+//struct CompareCellDistance
+//{
+//    bool operator()(const std::pair<Cell*, float>& lhs, const std::pair<Cell*, float>& rhs) const
+//    {
+//        return lhs.second > rhs.second;
+//    }
+//};
 
-AstarStrategy::AstarStrategy(Grid* grid)
-: PathfindingStrategy(grid)
-{}
+AstarStrategy::AstarStrategy(Grid* grid, int checksPerFrame)
+: PathfindingStrategy(grid), distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF)), predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr)), checksPerFrame(checksPerFrame)
+{
+	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = potential(grid->getStartCell(), grid->getEndCell());
+	pq.push({grid->getStartCell(), potential(grid->getStartCell(), grid->getEndCell())});
+}
 
 AstarStrategy::~AstarStrategy()
 {}
 
 float AstarStrategy::search(sf::RenderWindow& window)
 {
-	const int INF = std::numeric_limits<int>::max();
-	std::vector<std::vector<float>> distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF));
-	std::vector<std::vector<Cell*>> predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr));
-//	std::priority_queue<std::pair<Cell*, int>, std::vector<std::pair<Cell*, int>>, std::less<>> pq;
-	std::priority_queue<std::pair<Cell*, float>, std::vector<std::pair<Cell*, float>>, CompareCellDistance> pq;
-
-	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = potential(grid->getStartCell(), grid->getEndCell());
-	pq.push({grid->getStartCell(), potential(grid->getStartCell(), grid->getEndCell())});
-
-	int nframes = 0;
-	int drawFrame = 10; //to adjust visualization speed (1 to see each iteration with slow speed)
-	while(!pq.empty())
+	int checks = 0;
+	while(!pq.empty() && checks < checksPerFrame)
 	{
+		checks++;
 		Cell* currentCell = pq.top().first;
 		float currentDistancePotential = pq.top().second;
+		float currentDistance = currentDistancePotential - potential(currentCell, grid->getEndCell());;
 		pq.pop();
 
 		if(currentCell->getState() == CellState::Obstacle)
@@ -58,11 +53,11 @@ float AstarStrategy::search(sf::RenderWindow& window)
 			float newDistancePotential;
 			if(adjacentCell->getX() != currentCell->getX() && adjacentCell->getY() != currentCell->getY())
 			{
-				newDistancePotential = currentDistancePotential + sqrt(2) + potential(adjacentCell, grid->getEndCell());
+				newDistancePotential = currentDistance + sqrt(2) + potential(adjacentCell, grid->getEndCell());
 			}
 			else
 			{
-				newDistancePotential = currentDistancePotential + 1 + potential(adjacentCell, grid->getEndCell());
+				newDistancePotential = currentDistance + 1 + potential(adjacentCell, grid->getEndCell());
 			}
 			if (newDistancePotential < distance[adjacentCell->getX()][adjacentCell->getY()])
 			{
@@ -72,31 +67,22 @@ float AstarStrategy::search(sf::RenderWindow& window)
 					pq.push({grid->getCell(adjacentCell->getX(), adjacentCell->getY()), newDistancePotential});
 			}
 		}
-
-		grid->draw(window);
-		// remove this to see instantaneous result
-		if(nframes % drawFrame == 0)
-			window.display();
-//		sf::Time waitTime = sf::seconds(0.2f);
-//		sf::sleep(waitTime);
-		nframes++;
 	}
 
 	// reconstruct shortest path if it exists
-	float length = distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
 	if (predecessor[grid->getEndCell()->getX()][grid->getEndCell()->getY()] != nullptr)
 	{
 		Cell* currentCell = grid->getEndCell();
 		while (currentCell != nullptr)
 		{
-			length -= potential(currentCell, grid->getEndCell());
 			if(currentCell != grid->getStartCell() && currentCell != grid->getEndCell())
 				currentCell->setState(CellState::Path);
 			currentCell = predecessor[currentCell->getX()][currentCell->getY()];
 		}
 		grid->draw(window);
+		return distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
 	}
-	return length;
+	return -1;
 }
 
 float AstarStrategy::potential(Cell *start, Cell *end)
