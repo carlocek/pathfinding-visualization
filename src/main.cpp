@@ -3,6 +3,7 @@
 #include "Grid.hpp"
 #include "PathfindingStrategy.hpp"
 #include "DjikstraStrategy.hpp"
+#include "AstarStrategy.hpp"
 #include <iostream>
 
 void drawInfo(sf::RenderWindow& window, sf::Font font)
@@ -28,7 +29,7 @@ int main()
 	const int WIN_HEIGHT = 800;
 	const int GRID_WIDTH = 800;
 	const int GRID_HEIGHT = 800;
-	const int CELL_SIZE = 20;
+	const int CELL_SIZE = 10;
 	const float CELL_BORDER_SIZE = CELL_SIZE/10;
 	bool mousePressed;
 	float shortestPathLength;
@@ -63,6 +64,15 @@ int main()
 	sf::Text astarButtonText("A*", font, 16);
 	astarButtonText.setFillColor(sf::Color::White);
 	astarButtonText.setPosition(915, 155);
+	// reset button
+	sf::RectangleShape resetButtonRect(sf::Vector2f(105, 30)); // size
+	resetButtonRect.setFillColor(sf::Color{96, 96, 96});
+	resetButtonRect.setOutlineColor(sf::Color::Black);
+	resetButtonRect.setOutlineThickness(2);
+	resetButtonRect.setPosition(810, 190);
+	sf::Text resetButtonText("Reset Search", font, 16);
+	resetButtonText.setFillColor(sf::Color::White);
+	resetButtonText.setPosition(815, 195);
 
     while (window.isOpen())
     {
@@ -72,9 +82,11 @@ int main()
 		window.draw(djikstraButtonText);
 		window.draw(astarButtonRect);
 		window.draw(astarButtonText);
+		window.draw(resetButtonRect);
+		window.draw(resetButtonText);
 		sf::Text instructionsText("Shortest path has length: "+std::to_string(shortestPathLength), font, 22);
 		instructionsText.setFillColor(sf::Color::White);
-		instructionsText.setPosition(810, 200);
+		instructionsText.setPosition(810, 240);
 		window.draw(instructionsText);
 
 		PathfindingStrategy* strategy;
@@ -97,14 +109,22 @@ int main()
 						strategy = new DjikstraStrategy(&grid);
 						djikstraButtonRect.setOutlineColor(sf::Color::Cyan);
 					}
-//					else if(astarButtonRect.getGlobalBounds().contains(mousePos))
-//					{
-//						//TODO
-//					}
+					else if(astarButtonRect.getGlobalBounds().contains(mousePos))
+					{
+						strategy = new AstarStrategy(&grid);
+						astarButtonRect.setOutlineColor(sf::Color::Cyan);
+					}
+					else if(resetButtonRect.getGlobalBounds().contains(mousePos))
+					{
+						grid.reset();
+						resetButtonRect.setOutlineColor(sf::Color::Cyan);
+					}
 					else
 					{
 						strategy = nullptr;
 						djikstraButtonRect.setOutlineColor(sf::Color::Black);
+						astarButtonRect.setOutlineColor(sf::Color::Black);
+						resetButtonRect.setOutlineColor(sf::Color::Black);
 					}
 				}
 			}
@@ -140,12 +160,11 @@ int main()
 				}
 				else if(event.key.code == sf::Keyboard::Backspace)
 				{
-					grid.reset();
+					grid.clear();
 				}
 
 				else if(event.key.code == sf::Keyboard::Enter && strategy != nullptr)
 				{
-//					DjikstraStrategy strategy = DjikstraStrategy(&grid);
 					grid.setPathfindingStrategy(strategy);
 					shortestPathLength = grid.getPathfindingStrategy()->search(window);
 				}
