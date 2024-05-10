@@ -17,8 +17,9 @@ void drawInfo(sf::RenderWindow& window, sf::Font font)
 
     // instructions
     sf::Text instructionsText("To draw cells, press one of the keys and drag on the grid."
-    		"\nS: start cell, F: finish cell, O: obstacle cell, E: empty cell."
-    		"\nSelect the algorithm and press ENTER to run the search", font, 18);
+    		"\nS: start cell, F: finish cell, O: obstacle cell, E: empty cell"
+    		"\n\nSelect the algorithm and press ENTER to start/stop the search"
+    		"\nPress BACKSPACE to erase the grid", font, 18);
     instructionsText.setFillColor(sf::Color::White);
     instructionsText.setPosition(810, 60);
     window.draw(instructionsText);
@@ -26,21 +27,17 @@ void drawInfo(sf::RenderWindow& window, sf::Font font)
 
 int main()
 {
-	const int WIN_WIDTH = 1300;
+	const int WIN_WIDTH = 1310;
 	const int WIN_HEIGHT = 800;
 	const int GRID_WIDTH = 800;
 	const int GRID_HEIGHT = 800;
 	const int CELL_SIZE = 10;
-	const float CELL_BORDER_SIZE = CELL_SIZE/10;
+	const float CELL_BORDER_SIZE = CELL_SIZE/10 + 0.4;
 	bool mousePressed;
 	bool endSearch = false;
 	bool search = false;
 	float shortestPathLength;
 	int checksPerFrame = 10;
-
-//	std::chrono::milliseconds timePerFrame(1666);
-//	std::chrono::steady_clock::time_point prevTime = std::chrono::steady_clock::now();
-//	std::chrono::milliseconds elapsedTime(0);
 
     sf::RenderWindow window(sf::VideoMode(WIN_WIDTH, WIN_HEIGHT), "Pathfinding Visualization");
     window.setFramerateLimit(60);
@@ -59,40 +56,32 @@ int main()
 	djikstraButtonRect.setFillColor(sf::Color{96, 96, 96});
 	djikstraButtonRect.setOutlineColor(sf::Color::Black);
 	djikstraButtonRect.setOutlineThickness(2);
-	djikstraButtonRect.setPosition(810, 150);
+	djikstraButtonRect.setPosition(810, 190);
 	sf::Text djikstraButtonText("Dijkstra", font, 16);
 	djikstraButtonText.setFillColor(sf::Color::White);
-	djikstraButtonText.setPosition(815, 155);
+	djikstraButtonText.setPosition(815, 195);
 	// astar button
 	sf::RectangleShape astarButtonRect(sf::Vector2f(100, 30)); // size
 	astarButtonRect.setFillColor(sf::Color{96, 96, 96});
 	astarButtonRect.setOutlineColor(sf::Color::Black);
 	astarButtonRect.setOutlineThickness(2);
-	astarButtonRect.setPosition(910, 150);
+	astarButtonRect.setPosition(910, 190);
 	sf::Text astarButtonText("A*", font, 16);
 	astarButtonText.setFillColor(sf::Color::White);
-	astarButtonText.setPosition(915, 155);
+	astarButtonText.setPosition(915, 195);
 	// reset button
 	sf::RectangleShape resetButtonRect(sf::Vector2f(105, 30)); // size
 	resetButtonRect.setFillColor(sf::Color{96, 96, 96});
 	resetButtonRect.setOutlineColor(sf::Color::Black);
 	resetButtonRect.setOutlineThickness(2);
-	resetButtonRect.setPosition(810, 190);
+	resetButtonRect.setPosition(810, 230);
 	sf::Text resetButtonText("Reset Search", font, 16);
 	resetButtonText.setFillColor(sf::Color::White);
-	resetButtonText.setPosition(815, 195);
+	resetButtonText.setPosition(814, 235);
 
     while (window.isOpen())
     {
     	PathfindingStrategy* strategy;
-
-//		std::chrono::milliseconds deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - prevTime);
-//		elapsedTime += deltaTime;
-
-//		while (elapsedTime >= timePerFrame)
-//		{
-//			elapsedTime -= timePerFrame;
-
 		sf::Event event;
 		while(window.pollEvent(event))
 		{
@@ -146,7 +135,6 @@ int main()
 			}
 			else if(event.type == sf::Event::KeyPressed)
 			{
-				// Change drawing mode based on keys (start, end, obstacle)
 				if(event.key.code == sf::Keyboard::E)
 				{
 					currentState = CellState::Empty;
@@ -182,8 +170,6 @@ int main()
 				endSearch = true;
 			}
 		}
-//			if(elapsedTime < timePerFrame)
-//			{
 		window.clear(sf::Color{128, 128, 128});
 		drawInfo(window, font);
 		window.draw(djikstraButtonRect);
@@ -194,11 +180,9 @@ int main()
 		window.draw(resetButtonText);
 		sf::Text resultText("Shortest path has length: "+std::to_string(shortestPathLength), font, 22);
 		resultText.setFillColor(sf::Color::White);
-		resultText.setPosition(810, 240);
+		resultText.setPosition(810, 280);
 		window.draw(resultText);
 		grid.draw(window);
 		window.display();
-//			}
-//		}
     }
 }
