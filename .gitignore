@@ -3,3 +3,5 @@ _build/
 .project
 .cproject
 .properties
+.iss
+.exe
