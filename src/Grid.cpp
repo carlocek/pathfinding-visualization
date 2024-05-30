@@ -35,7 +35,6 @@ void Grid::reset()
 {
 	int widthCells = floor(width/cellSize);
 	int heightCells = floor(height/cellSize);
-//	this->strategy = nullptr;
 	for(int x = 0; x < widthCells; x++)
 	{
 		for(int y = 0; y < heightCells; y++)

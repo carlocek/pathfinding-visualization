@@ -128,23 +128,27 @@ int main()
 	});
 	simulationComboBox->onItemSelect([&](const tgui::String& item)
 	{
-		if(item == "Djikstra")
+		if(item == "Djikstra" && grid.getStartCell() != nullptr && grid.getEndCell() != nullptr)
 		{
+			grid.reset();
 			strategy = new DjikstraStrategy(&grid, checksPerFrame);
 			grid.setPathfindingStrategy(strategy);
 		}
-		else if(item == "A star")
+		else if(item == "A star" && grid.getStartCell() != nullptr && grid.getEndCell() != nullptr)
 		{
+			grid.reset();
 			strategy = new AstarStrategy(&grid, checksPerFrame);
 			grid.setPathfindingStrategy(strategy);
 		}
 		else
 		{
 			strategy = nullptr;
+			endSearch = false;
+			search = false;
 		}
 	});
 	runButton->onClick([&](){search = !search;});
-	clearButton->onClick([&](){grid.clear();});
+	clearButton->onClick([&](){grid.clear(); strategy = nullptr; simulationComboBox->deselectItem(); endSearch = false; search = false;});
 	resetButton->onClick([&](){grid.reset(); strategy = nullptr; simulationComboBox->deselectItem(); endSearch = false; search = false;});
 
     while (window.isOpen())
