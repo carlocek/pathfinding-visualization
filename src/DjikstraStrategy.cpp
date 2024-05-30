@@ -8,7 +8,7 @@
 #include <cmath>
 
 DjikstraStrategy::DjikstraStrategy(Grid* grid, int checksPerFrame)
-: PathfindingStrategy(grid), distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF)), predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr)), checksPerFrame(checksPerFrame)
+: PathfindingStrategy(grid, checksPerFrame), distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF)), predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr))
 {
 	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = 0;
 	pq.push({grid->getStartCell(), 0});
@@ -69,6 +69,16 @@ float DjikstraStrategy::search(sf::RenderWindow& window)
 		return distance[grid->getEndCell()->getX()][grid->getEndCell()->getY()];
 	}
 	return -1;
+}
+
+int DjikstraStrategy::getChecksPerFrame() const
+{
+	return checksPerFrame;
+}
+
+void DjikstraStrategy::setChecksPerFrame(int checksPerFrame)
+{
+	this->checksPerFrame = checksPerFrame;
 }
 
 std::vector<Cell*> DjikstraStrategy::getAdjacentCells(Cell* currentCell)

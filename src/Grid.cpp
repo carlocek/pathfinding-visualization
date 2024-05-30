@@ -1,25 +1,30 @@
 #include "Grid.hpp"
 
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 Grid::Grid(const int width, const int height, const int cellSize, const float borderWidth)
 : width(width), height(height), cellSize(cellSize), borderWidth(borderWidth), startCell(nullptr), endCell(nullptr), strategy(nullptr)
 {
-    this->cells.resize(width / cellSize, std::vector<Cell>(height / cellSize, Cell(0, 0, CellState::Empty)));
-    for(int x = 0; x < width/cellSize; x++)
-    {
-        for(int y = 0; y < height/cellSize; y++)
-        {
-            this->cells[x][y] = Cell(x, y, CellState::Empty);
-        }
-    }
+	int widthCells = floor(width/cellSize);
+	int heightCells = floor(height/cellSize);
+	this->cells.resize(widthCells, std::vector<Cell>(heightCells, Cell(0, 0, CellState::Empty)));
+	for(int x = 0; x < widthCells; x++)
+	{
+		for(int y = 0; y < heightCells; y++)
+		{
+			this->cells[x][y] = Cell(x, y, CellState::Empty);
+		}
+	}
 }
 
 void Grid::draw(sf::RenderWindow& window)
 {
-    for(int x = 0; x < width/cellSize; x++)
+	int widthCells = floor(width/cellSize);
+	int heightCells = floor(height/cellSize);
+    for(int x = 0; x < widthCells; x++)
     {
-        for(int y = 0; y < height/cellSize; y++)
+        for(int y = 0; y < heightCells; y++)
         {
         	this->cells[x][y].draw(window, cellSize, borderWidth);
         }
@@ -28,9 +33,12 @@ void Grid::draw(sf::RenderWindow& window)
 
 void Grid::reset()
 {
-	for(int x = 0; x < width/cellSize; x++)
+	int widthCells = floor(width/cellSize);
+	int heightCells = floor(height/cellSize);
+//	this->strategy = nullptr;
+	for(int x = 0; x < widthCells; x++)
 	{
-		for(int y = 0; y < height/cellSize; y++)
+		for(int y = 0; y < heightCells; y++)
 		{
 			if(this->cells[x][y].getState() == CellState::Visited || this->cells[x][y].getState() == CellState::Path)
 				this->cells[x][y].setState(CellState::Empty);
@@ -42,9 +50,11 @@ void Grid::clear()
 {
 	this->startCell = nullptr;
 	this->endCell = nullptr;
-	for(int x = 0; x < width/cellSize; x++)
+	int widthCells = floor(width/cellSize);
+	int heightCells = floor(height/cellSize);
+	for(int x = 0; x < widthCells; x++)
 	{
-		for(int y = 0; y < height/cellSize; y++)
+		for(int y = 0; y < heightCells; y++)
 		{
 			this->cells[x][y].setState(CellState::Empty);
 		}
@@ -146,5 +156,17 @@ int Grid::getCellSize() const
 
 void Grid::setCellSize(int cellSize)
 {
+	this->reset();
 	this->cellSize = cellSize;
+	this->borderWidth = cellSize/10 + 1.0;
+	int widthCells = floor(width/cellSize);
+	int heightCells = floor(height/cellSize);
+	this->cells.resize(widthCells, std::vector<Cell>(heightCells, Cell(0, 0, CellState::Empty)));
+	for(int x = 0; x < widthCells; x++)
+	{
+		for(int y = 0; y < heightCells; y++)
+		{
+			this->cells[x][y] = Cell(x, y, CellState::Empty);
+		}
+	}
 }

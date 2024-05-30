@@ -16,9 +16,12 @@ class PathfindingStrategy
 {
 protected:
 	Grid* grid;
+	int checksPerFrame;
 public:
-	PathfindingStrategy(Grid* grid) : grid(grid) {};
+	PathfindingStrategy(Grid* grid, int checksPerFrame) : grid(grid), checksPerFrame(checksPerFrame) {};
 	virtual ~PathfindingStrategy() {};
 	virtual float search(sf::RenderWindow& window);
+	virtual int getChecksPerFrame() const;
+	virtual void setChecksPerFrame(int checksPerFrame);
 };
 

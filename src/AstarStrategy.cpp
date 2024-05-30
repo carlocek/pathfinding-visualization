@@ -17,7 +17,7 @@
 //};
 
 AstarStrategy::AstarStrategy(Grid* grid, int checksPerFrame)
-: PathfindingStrategy(grid), distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF)), predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr)), checksPerFrame(checksPerFrame)
+: PathfindingStrategy(grid, checksPerFrame), distance(grid->getWidth(), std::vector<float>(grid->getHeight(), INF)), predecessor(grid->getWidth(), std::vector<Cell*>(grid->getHeight(), nullptr))
 {
 	distance[grid->getStartCell()->getX()][grid->getStartCell()->getY()] = potential(grid->getStartCell(), grid->getEndCell());
 	pq.push({grid->getStartCell(), potential(grid->getStartCell(), grid->getEndCell())});
@@ -88,6 +88,16 @@ float AstarStrategy::search(sf::RenderWindow& window)
 float AstarStrategy::potential(Cell *start, Cell *end)
 {
 	return sqrt(pow(start->getX()-end->getX(), 2) + pow(start->getY()-end->getY(), 2));
+}
+
+int AstarStrategy::getChecksPerFrame() const
+{
+	return checksPerFrame;
+}
+
+void AstarStrategy::setChecksPerFrame(int checksPerFrame)
+{
+	this->checksPerFrame = checksPerFrame;
 }
 
 std::vector<Cell*> AstarStrategy::getAdjacentCells(Cell* currentCell)

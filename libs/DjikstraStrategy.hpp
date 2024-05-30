@@ -11,10 +11,11 @@ private:
 	std::vector<std::vector<float>> distance;
 	std::vector<std::vector<Cell*>> predecessor;
 	std::priority_queue<std::pair<Cell*, float>, std::vector<std::pair<Cell*, float>>, CompareCellDistance> pq;
-	int checksPerFrame;
 public:
 	DjikstraStrategy(Grid* grid, int checksPerFrame);
 	~DjikstraStrategy();
 	float search(sf::RenderWindow& window);
 	std::vector<Cell*> getAdjacentCells(Cell* currentCell);
+	int getChecksPerFrame() const;
+	void setChecksPerFrame(int checksPerFrame);
 };
